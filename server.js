@@ -250,6 +250,10 @@ app.get("/schedule.html", (req, res) => {
   res.sendFile(path.join(__dirname, "schedule.html"));
 });
 
+app.get("/support.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "support.html"));
+});
+
 app.get(["/schdule", "/schdule.html"], (req, res) => {
   res.redirect(301, "/schedule.html");
 });
