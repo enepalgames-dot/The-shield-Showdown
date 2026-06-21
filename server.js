@@ -1,5 +1,7 @@
 const express = require("express");
 const cors = require("cors");
+const fs = require("fs");
+const multer = require("multer");
 const path = require("path");
 const { REST, Routes } = require("discord.js");
 require("dotenv").config();
@@ -11,6 +13,25 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
 const MAX_GROUP = 37;
+const uploadDir = path.join(__dirname, "uploads");
+const scheduleFile = path.join(uploadDir, "schedule.png");
+
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+}
+
+app.use("/uploads", express.static(uploadDir, {
+  setHeaders: res => {
+    res.set("Cache-Control", "no-store");
+  }
+}));
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadDir),
+  filename: (req, file, cb) => cb(null, "schedule.png")
+});
+
+const upload = multer({ storage });
 
 let roomData = {};
 let checkins = {};
@@ -210,10 +231,6 @@ app.get("/groups.html", (req, res) => {
   res.sendFile(path.join(__dirname, "groups.html"));
 });
 
-app.get("/roadmap.html", (req, res) => {
-  res.sendFile(path.join(__dirname, "roadmap.html"));
-});
-
 app.get("/roadmap", (req, res) => {
   res.sendFile(path.join(__dirname, "roadmap.html"));
 });
@@ -224,6 +241,14 @@ app.get("/checkin", (req, res) => {
 
 app.get("/admin", (req, res) => {
   res.sendFile(path.join(__dirname, "admin.html"));
+});
+
+app.get("/schedule.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "schedule.html"));
+});
+
+app.get(["/schdule", "/schdule.html"], (req, res) => {
+  res.redirect(301, "/schedule.html");
 });
 
 app.get("/health", (req, res) => {
@@ -240,6 +265,50 @@ app.get("/groups", async (req, res) => {
       error: err.message || "Cannot load Discord groups."
     });
   }
+});
+
+app.post("/upload-schedule", upload.single("schedule"), (req, res) => {
+  if (!process.env.ADMIN_KEY) {
+    return res.status(500).json({ error: "ADMIN_KEY is not set." });
+  }
+
+  if (req.body.adminKey !== process.env.ADMIN_KEY) {
+    return res.status(403).json({
+      error: "Invalid admin key"
+    });
+  }
+
+  if (!req.file) {
+    return res.status(400).json({
+      error: "Schedule image is required."
+    });
+  }
+
+  res.json({
+    success: true,
+    message: "Schedule uploaded successfully."
+  });
+});
+
+app.post("/delete-schedule", (req, res) => {
+  if (!process.env.ADMIN_KEY) {
+    return res.status(500).json({ error: "ADMIN_KEY is not set." });
+  }
+
+  if (req.body.adminKey !== process.env.ADMIN_KEY) {
+    return res.status(403).json({
+      error: "Invalid admin key"
+    });
+  }
+
+  if (fs.existsSync(scheduleFile)) {
+    fs.unlinkSync(scheduleFile);
+  }
+
+  res.json({
+    success: true,
+    message: "Schedule deleted successfully."
+  });
 });
 
 app.post("/send-room", async (req, res) => {

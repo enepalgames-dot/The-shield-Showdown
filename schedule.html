@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Match Schedule</title>
+
+<style>
+
+body{
+    margin:0;
+    background:#090909;
+    color:white;
+    font-family:Arial;
+    text-align:center;
+}
+
+h1{
+    color:#ff2a2a;
+    margin-top:20px;
+}
+
+img{
+    width:95%;
+    max-width:1200px;
+    margin:20px auto;
+    display:block;
+    border:3px solid red;
+    border-radius:10px;
+}
+
+</style>
+
+</head>
+<body>
+
+<h1>Match Schedule</h1>
+
+<img id="schedule" alt="Match Schedule">
+
+<script>
+const schedule = document.getElementById("schedule");
+schedule.src = `/uploads/schedule.png?t=${Date.now()}`;
+
+schedule.onerror = () => {
+    schedule.remove();
+    document.body.innerHTML += "<h2>No Schedule Uploaded</h2>";
+};
+
+</script>
+
+</body>
+</html>

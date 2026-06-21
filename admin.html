@@ -73,6 +73,15 @@ button:hover{
   background:#cc0000;
 }
 
+.delete-btn{
+  background:#3a0000;
+  border:1px solid #ff4444;
+}
+
+.delete-btn:hover{
+  background:#6b0000;
+}
+
 #msg{
   margin-top:15px;
   text-align:center;
@@ -100,11 +109,49 @@ button:hover{
 
   <button onclick="sendRoom()">SEND ROOM DETAILS</button>
 
-  <p id="msg"></p>
+<hr style="margin:25px 0;border:1px solid #550000;">
+
+<h2>📅 Schedule Upload</h2>
+
+<label>Select Schedule Image</label>
+<input
+  type="file"
+  id="scheduleImage"
+  accept="image/png,image/jpeg,image/webp">
+
+<button onclick="uploadSchedule()">
+  UPLOAD SCHEDULE
+</button>
+
+<button class="delete-btn" onclick="deleteSchedule()">
+  DELETE SCHEDULE
+</button>
+
+<p id="msg"></p>
 </div>
 
 <script>
+const API_BASE = ["5500", "5501"].includes(window.location.port)
+  ? "http://localhost:3000"
+  : "";
+
 const groupSelect = document.getElementById("group");
+
+async function readJsonResponse(res){
+  const text = await res.text();
+
+  if(!text){
+    return {};
+  }
+
+  try{
+    return JSON.parse(text);
+  }catch(error){
+    return {
+      error: text
+    };
+  }
+}
 
 for(let i = 1; i <= 37; i++){
   const option = document.createElement("option");
@@ -131,7 +178,7 @@ async function sendRoom(){
   msg.innerText = "Sending...";
 
   try{
-    const res = await fetch("/send-room", {
+    const res = await fetch(`${API_BASE}/send-room`, {
       method:"POST",
       headers:{
         "Content-Type":"application/json"
@@ -144,7 +191,7 @@ async function sendRoom(){
       })
     });
 
-    const data = await res.json();
+    const data = await readJsonResponse(res);
 
     if(res.ok){
       msg.style.color = "#00ff66";
@@ -160,6 +207,98 @@ async function sendRoom(){
   }catch(error){
     msg.style.color = "#ff4444";
     msg.innerText = "Server connection error.";
+  }
+}
+
+async function uploadSchedule(){
+  const msg = document.getElementById("msg");
+  const adminKey = document.getElementById("key").value.trim();
+  const file = document.getElementById("scheduleImage").files[0];
+
+  if(!adminKey){
+    msg.style.color = "#ff4444";
+    msg.innerText = "Please enter Admin Key.";
+    return;
+  }
+
+  if(!file){
+    msg.style.color = "#ff4444";
+    msg.innerText = "Please select a schedule image.";
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("adminKey", adminKey);
+  formData.append("schedule", file);
+
+  msg.style.color = "#ffd700";
+  msg.innerText = "Uploading...";
+
+  try{
+    const res = await fetch(`${API_BASE}/upload-schedule`, {
+      method:"POST",
+      body:formData
+    });
+
+    const data = await readJsonResponse(res);
+
+    if(res.ok){
+      msg.style.color = "#00ff66";
+      msg.innerText = data.message || "Schedule uploaded successfully.";
+      document.getElementById("scheduleImage").value = "";
+    }else{
+      msg.style.color = "#ff4444";
+      msg.innerText = data.error || "Upload failed.";
+    }
+
+  }catch(error){
+    console.error(error);
+    msg.style.color = "#ff4444";
+    msg.innerText = "Upload failed.";
+  }
+}
+
+async function deleteSchedule(){
+  const msg = document.getElementById("msg");
+  const adminKey = document.getElementById("key").value.trim();
+
+  if(!adminKey){
+    msg.style.color = "#ff4444";
+    msg.innerText = "Please enter Admin Key.";
+    return;
+  }
+
+  if(!confirm("Delete the uploaded schedule?")){
+    return;
+  }
+
+  msg.style.color = "#ffd700";
+  msg.innerText = "Deleting...";
+
+  try{
+    const res = await fetch(`${API_BASE}/delete-schedule`, {
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify({ adminKey })
+    });
+
+    const data = await readJsonResponse(res);
+
+    if(res.ok){
+      msg.style.color = "#00ff66";
+      msg.innerText = data.message || "Schedule deleted successfully.";
+      document.getElementById("scheduleImage").value = "";
+    }else{
+      msg.style.color = "#ff4444";
+      msg.innerText = data.error || "Delete failed.";
+    }
+
+  }catch(error){
+    console.error(error);
+    msg.style.color = "#ff4444";
+    msg.innerText = "Delete failed.";
   }
 }
 </script>
