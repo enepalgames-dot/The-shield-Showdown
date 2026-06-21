@@ -234,11 +234,11 @@ app.get("/groups.html", (req, res) => {
   res.sendFile(path.join(__dirname, "groups.html"));
 });
 
-app.get("/roadmap", (req, res) => {
+app.get("/roadmap.html", (req, res) => {
   res.sendFile(path.join(__dirname, "roadmap.html"));
 });
 
-app.get("/checkin", (req, res) => {
+app.get("/checkin.html", (req, res) => {
   res.sendFile(path.join(__dirname, "checkin.html"));
 });
 
