@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Group Room</title>
+<style>
+body{background:#080000;color:white;font-family:Arial;text-align:center;padding:30px}
+.card{max-width:400px;margin:auto;background:#180000;border:1px solid red;border-radius:12px;padding:25px}
+h1{color:#ff3333}
+.info{font-size:24px;margin:15px}
+</style>
+</head>
+<body>
+
+<div class="card">
+<h1 id="title">GROUP ROOM</h1>
+<div class="info" id="room">Room ID: Waiting...</div>
+<div class="info" id="pass">Password: Waiting...</div>
+<p id="time"></p>
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const group = params.get("group") || "1";
+
+document.getElementById("title").innerText = "GROUP " + group + " ROOM";
+
+async function loadRoom(){
+  const res = await fetch("/room/" + group);
+  const data = await res.json();
+
+  if(data){
+    document.getElementById("room").innerText = "Room ID: " + data.roomId;
+    document.getElementById("pass").innerText = "Password: " + data.password;
+    document.getElementById("time").innerText = "Updated: " + data.updatedAt;
+  }
+}
+
+loadRoom();
+setInterval(loadRoom, 5000);
+</script>
+
+</body>
+</html>

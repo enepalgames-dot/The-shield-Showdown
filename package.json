@@ -1,0 +1,21 @@
+{
+"name": "website-code",
+"version": "1.0.0",
+"description": "Discord Tournament Website",
+"main": "server.js",
+"scripts": {
+"start": "node server.js",
+"dev": "node server.js"
+},
+"keywords": [],
+"author": "",
+"license": "ISC",
+"type": "commonjs",
+"dependencies": {
+"body-parser": "^2.3.0",
+"cors": "^2.8.6",
+"discord.js": "^14.26.4",
+"dotenv": "^17.4.2",
+"express": "^5.2.1"
+}
+}

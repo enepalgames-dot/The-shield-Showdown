@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Room Sender</title>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Arial, sans-serif;
+}
+
+body{
+  min-height:100vh;
+  background:linear-gradient(135deg,#080000,#300000,#080000);
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+.box{
+  width:100%;
+  max-width:430px;
+  background:#160000;
+  border:2px solid #ff2525;
+  border-radius:16px;
+  padding:25px;
+  box-shadow:0 0 25px rgba(255,0,0,.45);
+}
+
+h2{
+  text-align:center;
+  color:#ff4444;
+  margin-bottom:20px;
+}
+
+label{
+  font-size:14px;
+  color:#ffb3b3;
+  margin-top:12px;
+  display:block;
+}
+
+input,select,button{
+  width:100%;
+  padding:13px;
+  margin-top:7px;
+  border:none;
+  border-radius:8px;
+  font-size:15px;
+}
+
+input,select{
+  background:#2b0000;
+  color:white;
+  outline:1px solid #600;
+}
+
+button{
+  margin-top:18px;
+  background:#ff0000;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+button:hover{
+  background:#cc0000;
+}
+
+#msg{
+  margin-top:15px;
+  text-align:center;
+  font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+  <h2>🎮 Admin Room Sender</h2>
+
+  <label>Admin Key</label>
+  <input id="key" type="password" placeholder="Enter admin key">
+
+  <label>Select Group</label>
+  <select id="group"></select>
+
+  <label>Room ID</label>
+  <input id="roomId" placeholder="Enter room ID">
+
+  <label>Password</label>
+  <input id="password" placeholder="Enter password">
+
+  <button onclick="sendRoom()">SEND ROOM DETAILS</button>
+
+  <p id="msg"></p>
+</div>
+
+<script>
+const groupSelect = document.getElementById("group");
+
+for(let i = 1; i <= 37; i++){
+  const option = document.createElement("option");
+  option.value = i;
+  option.textContent = "Group " + i;
+  groupSelect.appendChild(option);
+}
+
+async function sendRoom(){
+  const msg = document.getElementById("msg");
+
+  const adminKey = document.getElementById("key").value.trim();
+  const group = document.getElementById("group").value;
+  const roomId = document.getElementById("roomId").value.trim();
+  const password = document.getElementById("password").value.trim();
+
+  if(!adminKey || !roomId || !password){
+    msg.style.color = "#ff4444";
+    msg.innerText = "Please fill all fields.";
+    return;
+  }
+
+  msg.style.color = "#ffd700";
+  msg.innerText = "Sending...";
+
+  try{
+    const res = await fetch("http://localhost:3000/send-room", {
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify({
+        adminKey,
+        group,
+        roomId,
+        password
+      })
+    });
+
+    const data = await res.json();
+
+    if(res.ok){
+      msg.style.color = "#00ff66";
+      msg.innerText = data.message || "Room sent successfully.";
+
+      document.getElementById("roomId").value = "";
+      document.getElementById("password").value = "";
+    }else{
+      msg.style.color = "#ff4444";
+      msg.innerText = data.error || "Failed to send.";
+    }
+
+  }catch(error){
+    msg.style.color = "#ff4444";
+    msg.innerText = "Server connection error.";
+  }
+}
+</script>
+
+</body>
+</html>

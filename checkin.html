@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Team Check-In</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+  margin:0;
+  min-height:100vh;
+  background:linear-gradient(135deg,#090000,#2b0000,#090000);
+  color:white;
+  font-family:Arial;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:20px;
+}
+
+.box{
+  width:100%;
+  max-width:430px;
+  background:#160000;
+  border:2px solid #ff2a2a;
+  border-radius:16px;
+  padding:25px;
+  box-shadow:0 0 25px rgba(255,0,0,.4);
+}
+
+h2{
+  text-align:center;
+  color:#ff4444;
+}
+
+label{
+  display:block;
+  margin-top:14px;
+  color:#ffb3b3;
+}
+
+input,select,button{
+  width:100%;
+  padding:13px;
+  margin-top:7px;
+  border:none;
+  border-radius:8px;
+  font-size:15px;
+}
+
+input,select{
+  background:#2b0000;
+  color:white;
+}
+
+button{
+  background:red;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+  margin-top:18px;
+}
+
+#msg{
+  text-align:center;
+  margin-top:15px;
+  font-weight:bold;
+}
+
+.list{
+  margin-top:20px;
+  background:#0d0000;
+  padding:12px;
+  border-radius:10px;
+}
+
+.item{
+  padding:8px;
+  border-bottom:1px solid #400;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+  <h2>✅ Team Check-In</h2>
+
+  <label>Select Group</label>
+  <select id="group"></select>
+
+  <label>Team Name</label>
+  <input id="teamName" placeholder="Enter your team name">
+
+  <button onclick="checkin()">CHECK IN</button>
+
+  <p id="msg"></p>
+
+  <div class="list">
+    <h3>Checked Teams</h3>
+    <div id="checkedList">Loading...</div>
+  </div>
+</div>
+
+<script>
+const API_URL = "http://localhost:3000";
+
+const groupSelect = document.getElementById("group");
+
+for(let i = 1; i <= 37; i++){
+  const option = document.createElement("option");
+  option.value = i;
+  option.textContent = "Group " + i;
+  groupSelect.appendChild(option);
+}
+
+groupSelect.addEventListener("change", loadCheckins);
+
+async function checkin(){
+  const group = document.getElementById("group").value;
+  const teamName = document.getElementById("teamName").value.trim();
+  const msg = document.getElementById("msg");
+
+  if(!teamName){
+    msg.style.color = "#ff4444";
+    msg.innerText = "Enter team name.";
+    return;
+  }
+
+  msg.style.color = "#ffd700";
+  msg.innerText = "Checking in...";
+
+  try{
+    const res = await fetch(API_URL + "/checkin", {
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify({
+        group,
+        teamName
+      })
+    });
+
+    const data = await res.json();
+
+    if(res.ok){
+      msg.style.color = "#00ff66";
+      msg.innerText = data.message;
+      document.getElementById("teamName").value = "";
+      loadCheckins();
+    }else{
+      msg.style.color = "#ff4444";
+      msg.innerText = data.error;
+    }
+
+  }catch(err){
+    msg.style.color = "#ff4444";
+    msg.innerText = "Server connection error. Make sure node server.js is running.";
+  }
+}
+
+async function loadCheckins(){
+  const group = document.getElementById("group").value;
+  const box = document.getElementById("checkedList");
+
+  try{
+    const res = await fetch(API_URL + "/checkins/" + group);
+    const data = await res.json();
+
+    if(data.length === 0){
+      box.innerHTML = "No teams checked in yet.";
+      return;
+    }
+
+    box.innerHTML = data.map((team,index) => `
+      <div class="item">
+        ${index + 1}. ✅ ${team}
+      </div>
+    `).join("");
+
+  }catch(err){
+    box.innerHTML = "Cannot load check-ins. Server not connected.";
+  }
+}
+
+loadCheckins();
+setInterval(loadCheckins, 5000);
+</script>
+
+</body>
+</html>
