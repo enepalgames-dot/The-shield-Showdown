@@ -12,7 +12,7 @@ app.use(cors());
 app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
-const MAX_GROUP = 37;
+const MAX_GROUP = 40;
 const uploadDir = path.join(__dirname, "uploads");
 const scheduleFile = path.join(uploadDir, "schedule.png");
 
@@ -73,7 +73,10 @@ const groupChannels = {
   34: "1517781833658662913",
   35: "1517781835977982093",
   36: "1517781837680869407",
-  37: "1517781839673294929"
+  37: "1517781839673294929",
+  38: "1518240408977670169",
+  39: process.env.GROUP_39_CHANNEL_ID,
+  40: process.env.GROUP_40_CHANNEL_ID
 };
 
 const rest = new REST({ version: "10" });
