@@ -131,7 +131,7 @@ async function sendRoom(){
   msg.innerText = "Sending...";
 
   try{
-    const res = await fetch("http://localhost:3000/send-room", {
+    const res = await fetch("/send-room", {
       method:"POST",
       headers:{
         "Content-Type":"application/json"

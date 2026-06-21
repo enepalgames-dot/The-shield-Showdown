@@ -104,14 +104,14 @@ td:first-child{
 
 <header>
   <h1>The Shield Showdown Group Division</h1>
-  <p>38 Groups • 12 Teams Per Group</p>
+  <p>37 Groups - 12 Teams Per Group</p>
 </header>
 
 <div class="container" id="groups"></div>
 
 <script>
 async function loadGroups(){
-  const res = await fetch("http://localhost:3000/groups");
+  const res = await fetch("/groups");
   const groups = await res.json();
   const box = document.getElementById("groups");
 

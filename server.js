@@ -1,13 +1,13 @@
 const express = require("express");
 const cors = require("cors");
-const { Client, GatewayIntentBits, Events } = require("discord.js");
+const path = require("path");
+const { REST, Routes } = require("discord.js");
 require("dotenv").config();
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static("public"));
 
 const PORT = process.env.PORT || 3000;
 const MAX_GROUP = 37;
@@ -55,13 +55,16 @@ const groupChannels = {
   37: "1517781839673294929"
 };
 
-const client = new Client({
-  intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent
-  ]
-});
+const rest = new REST({ version: "10" });
+
+function configureDiscordRest() {
+  if (!process.env.BOT_TOKEN) {
+    throw new Error("BOT_TOKEN is not set.");
+  }
+
+  rest.setToken(process.env.BOT_TOKEN);
+  return rest;
+}
 
 function isValidGroup(group) {
   return Number.isInteger(group) && group >= 1 && group <= MAX_GROUP;
@@ -105,13 +108,13 @@ function parseGroups(text) {
     const block = text.slice(start, end);
 
     const teams = [];
-    const slotRegex = /slot\s*0?(\d+)\s*[-=→>一＞]*\s*(team\s*)?([^\n]+)/gi;
+    const slotRegex = /slot\s*0?(\d+)\s*[-=->:]*\s*(team\s*)?([^\n]+)/gi;
 
     let match;
 
     while ((match = slotRegex.exec(block)) !== null) {
       let teamName = match[3]
-        .replace(/[→➜➡➤➥➔>`*]/g, "")
+        .replace(/[>`*]/g, "")
         .replace(/^team\s+/i, "")
         .trim();
 
@@ -135,13 +138,14 @@ function parseGroups(text) {
 }
 
 async function loadDiscordGroups() {
-  const channel = await client.channels.fetch(process.env.CHANNEL_ID);
-
-  if (!channel) {
-    throw new Error("Main group list channel not found.");
+  if (!process.env.CHANNEL_ID) {
+    throw new Error("CHANNEL_ID is not set.");
   }
 
-  const messages = await channel.messages.fetch({ limit: 100 });
+  const messages = await configureDiscordRest().get(
+    Routes.channelMessages(process.env.CHANNEL_ID),
+    { query: new URLSearchParams({ limit: "100" }) }
+  );
 
   const text = messages
     .map(getMessageText)
@@ -151,49 +155,63 @@ async function loadDiscordGroups() {
   return parseGroups(text);
 }
 
-async function fetchGroupChannel(group) {
+function getGroupChannelId(group) {
   const channelId = groupChannels[group];
 
   if (!channelId) {
     throw new Error(`Channel ID not set for Group ${group}`);
   }
 
-  const channel = await client.channels.fetch(channelId);
+  return channelId;
+}
 
-  if (!channel) {
-    throw new Error(`Discord channel not found for Group ${group}`);
-  }
-
-  return channel;
+async function sendDiscordMessage(channelId, content) {
+  await configureDiscordRest().post(Routes.channelMessages(channelId), {
+    body: { content }
+  });
 }
 
 async function sendRoomToDiscord(group, roomId, password) {
-  const channel = await fetchGroupChannel(group);
+  await sendDiscordMessage(
+    getGroupChannelId(group),
+`**ROOM DETAILS - GROUP ${group}**
 
-  await channel.send(
-`🎮 **ROOM DETAILS - GROUP ${group}**
+**Room ID:** ${roomId}
+**Password:** ${password}
 
-🆔 **Room ID:** ${roomId}
-🔐 **Password:** ${password}
-
-⚠️ Join on time.
-🚫 Do not share this outside your group.`
+Join on time.
+Do not share this outside your group.`
   );
 }
 
 async function sendCheckinToDiscord(group, teamName) {
-  const channel = await fetchGroupChannel(group);
+  await sendDiscordMessage(
+    getGroupChannelId(group),
+`**CHECK-IN CONFIRMED**
 
-  await channel.send(
-`✅ **CHECK-IN CONFIRMED**
-
-🏆 Group: ${group}
-👥 Team: **${teamName}**`
+Group: ${group}
+Team: **${teamName}**`
   );
 }
 
 app.get("/", (req, res) => {
-  res.send("Discord Roadmap API Running");
+  res.sendFile(path.join(__dirname, "index.html"));
+});
+
+app.get("/admin.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "admin.html"));
+});
+
+app.get("/checkin.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "checkin.html"));
+});
+
+app.get("/groups.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "groups.html"));
+});
+
+app.get("/health", (req, res) => {
+  res.json({ ok: true });
 });
 
 app.get("/groups", async (req, res) => {
@@ -203,7 +221,7 @@ app.get("/groups", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({
-      error: "Cannot load Discord groups. Check CHANNEL_ID and bot permissions."
+      error: err.message || "Cannot load Discord groups."
     });
   }
 });
@@ -212,6 +230,10 @@ app.post("/send-room", async (req, res) => {
   try {
     const { adminKey, group, roomId, password } = req.body;
     const groupNumber = Number(group);
+
+    if (!process.env.ADMIN_KEY) {
+      return res.status(500).json({ error: "ADMIN_KEY is not set." });
+    }
 
     if (adminKey !== process.env.ADMIN_KEY) {
       return res.status(403).json({ error: "Invalid admin key" });
@@ -245,7 +267,6 @@ app.post("/send-room", async (req, res) => {
       success: true,
       message: `Room ID and password sent to Group ${groupNumber}.`
     });
-
   } catch (err) {
     console.error(err);
     res.status(500).json({
@@ -308,7 +329,6 @@ app.post("/checkin", async (req, res) => {
       success: true,
       message: "Check-in successful."
     });
-
   } catch (err) {
     console.error(err);
     res.status(500).json({
@@ -329,14 +349,12 @@ app.get("/checkins/:group", (req, res) => {
   res.json(checkins[group] || []);
 });
 
-client.once(Events.ClientReady, () => {
-  console.log(`Bot online: ${client.user.tag}`);
-
+if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`API: http://localhost:${PORT}/groups`);
     console.log(`Admin: http://localhost:${PORT}/admin.html`);
     console.log(`Check-In: http://localhost:${PORT}/checkin.html`);
   });
-});
+}
 
-client.login(process.env.BOT_TOKEN);
+module.exports = app;

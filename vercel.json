@@ -1,0 +1,27 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "server.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "*.html",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/(admin|checkin|groups)\\.html",
+      "dest": "/$1.html"
+    },
+    {
+      "src": "/(health|groups|send-room|checkin|room/.*|checkins/.*)",
+      "dest": "/server.js"
+    }
+  ]
+}
