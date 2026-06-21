@@ -214,6 +214,18 @@ app.get("/roadmap.html", (req, res) => {
   res.sendFile(path.join(__dirname, "roadmap.html"));
 });
 
+app.get("/roadmap", (req, res) => {
+  res.sendFile(path.join(__dirname, "roadmap.html"));
+});
+
+app.get("/checkin", (req, res) => {
+  res.sendFile(path.join(__dirname, "checkin.html"));
+});
+
+app.get("/admin", (req, res) => {
+  res.sendFile(path.join(__dirname, "admin.html"));
+});
+
 app.get("/health", (req, res) => {
   res.json({ ok: true });
 });
