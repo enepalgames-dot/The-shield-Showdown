@@ -16,8 +16,8 @@
       "dest": "/index.html"
     },
     {
-      "src": "/(admin|checkin|groups)\\.html",
-      "dest": "/$1.html"
+      "src": "/(.+\\.html)",
+      "dest": "/$1"
     },
     {
       "src": "/(health|groups|send-room|checkin|room/.*|checkins/.*)",

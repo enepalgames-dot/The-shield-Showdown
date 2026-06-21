@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Tournament Roadmap</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body{
+  margin:0;
+  background:#170000;
+  color:white;
+  font-family:Arial;
+  overflow-x:auto;
+}
+
+h1{
+  text-align:center;
+  color:#ffd700;
+  padding:25px;
+  font-size:42px;
+}
+
+.roadmap{
+  width:1600px;
+  margin:auto;
+  padding:30px;
+}
+
+.row{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:18px;
+  margin:35px 0;
+}
+
+.stage{
+  width:260px;
+  background:#d9b650;
+  color:#000;
+  border:3px solid #000;
+  border-radius:10px;
+  padding:15px;
+  text-align:center;
+  font-weight:bold;
+  box-shadow:0 0 18px rgba(255,215,0,.35);
+}
+
+.stage h2{
+  margin-bottom:10px;
+}
+
+.map{
+  background:#fff2b8;
+  padding:7px;
+  border-radius:6px;
+  margin-top:8px;
+}
+
+.qualify{
+  background:#c40000;
+  color:white;
+  padding:8px;
+  border-radius:6px;
+  margin-top:8px;
+}
+
+.result{
+  background:#139b35;
+  color:white;
+  padding:8px;
+  border-radius:6px;
+  margin-top:8px;
+}
+
+.arrowBox{
+  width:150px;
+  text-align:center;
+  color:#ffd700;
+  font-weight:bold;
+}
+
+.arrowLine{
+  height:4px;
+  background:#ffd700;
+  position:relative;
+  margin:8px 0;
+}
+
+.arrowLine:after{
+  content:"";
+  position:absolute;
+  right:-2px;
+  top:-7px;
+  border-left:16px solid #ffd700;
+  border-top:9px solid transparent;
+  border-bottom:9px solid transparent;
+}
+
+.downWrap{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  color:#ffd700;
+  font-weight:bold;
+  margin:10px 0;
+}
+
+.downLine{
+  height:70px;
+  width:4px;
+  background:#ffd700;
+  position:relative;
+}
+
+.downLine:after{
+  content:"";
+  position:absolute;
+  bottom:-2px;
+  left:-7px;
+  border-top:16px solid #ffd700;
+  border-left:9px solid transparent;
+  border-right:9px solid transparent;
+}
+
+.section{
+  text-align:center;
+  color:#ffd700;
+  font-size:30px;
+  margin-top:50px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>TOURNAMENT ROADMAP STRUCTURE</h1>
+
+<div class="roadmap">
+
+  <div class="row">
+    <div class="stage">
+      <h2>ROUND 1</h2>
+      480 Teams<br>
+      40 Groups
+      <div class="map">1 MAP</div>
+      <div class="qualify">Top 3 / Group</div>
+      <div class="result">120 Teams Go Round 2</div>
+    </div>
+
+    <div class="arrowBox">
+      120 Teams
+      <div class="arrowLine"></div>
+      Go Round 2
+    </div>
+
+    <div class="stage">
+      <h2>ROUND 2</h2>
+      120 Teams<br>
+      10 Groups
+      <div class="map">2 MAP</div>
+      <div class="qualify">Top 3 / Group</div>
+      <div class="result">30 Teams Go Round 3</div>
+    </div>
+
+    <div class="arrowBox">
+      30 Teams
+      <div class="arrowLine"></div>
+      Go Round 3
+    </div>
+
+    <div class="stage">
+      <h2>ROUND 3</h2>
+      30 Teams<br>
+      + 6 Bottom Invited<br>
+      3 Groups
+      <div class="map">3 MAP</div>
+      <div class="qualify">Top 10 / Group</div>
+      <div class="result">30 Teams Go Quarter</div>
+    </div>
+
+    <div class="arrowBox">
+      30 Teams
+      <div class="arrowLine"></div>
+      Go Quarter
+    </div>
+
+    <div class="stage">
+      <h2>QUARTER FINAL</h2>
+      30 Teams<br>
+      + 6 Top Invited<br>
+      3 Groups
+      <div class="map">6 MAP</div>
+      <div class="qualify">Top 6 / Group</div>
+      <div class="result">18 Teams Go League</div>
+    </div>
+  </div>
+
+  <div class="section">INVITED QUALIFIER PATH</div>
+
+  <div class="row">
+    <div class="stage">
+      <h2>INVITED QUALIFIER</h2>
+      12 Teams<br>
+      1 Group
+      <div class="map">6 ROOMS</div>
+      <div class="qualify">Top 6</div>
+      <div class="result">6 Teams Split</div>
+    </div>
+
+    <div class="arrowBox">
+      Bottom 6
+      <div class="arrowLine"></div>
+      Join Round 3
+    </div>
+
+    <div class="stage">
+      <h2>ROUND 3 ENTRY</h2>
+      Bottom 6 Invited<br>
+      Join with 30 Teams
+      <div class="result">Total 36 Teams</div>
+    </div>
+
+    <div class="arrowBox">
+      Top 6
+      <div class="arrowLine"></div>
+      Join Quarter
+    </div>
+
+    <div class="stage">
+      <h2>QUARTER ENTRY</h2>
+      Top 6 Invited<br>
+      Join Quarter Final
+      <div class="result">Total 36 Teams</div>
+    </div>
+  </div>
+
+  <div class="downWrap">
+    18 Teams From Quarter Final
+    <div class="downLine"></div>
+    Go League
+  </div>
+
+  <div class="row">
+    <div class="stage">
+      <h2>LEAGUE A vs B vs C</h2>
+      18 Teams
+      <div class="map">6 MAP</div>
+      <div class="qualify">Top 12</div>
+      <div class="result">12 Teams Go Point Rush</div>
+    </div>
+  </div>
+
+  <div class="downWrap">
+    12 Teams
+    <div class="downLine"></div>
+    Go Point Rush
+  </div>
+
+  <div class="row">
+    <div class="stage">
+      <h2>POINT RUSH</h2>
+      12 Teams
+      <div class="map">6 MAP</div>
+      <div class="result">12 Teams Go Champion Rush</div>
+    </div>
+  </div>
+
+  <div class="downWrap">
+    12 Teams
+    <div class="downLine"></div>
+    Go Champion Rush
+  </div>
+
+  <div class="row">
+    <div class="stage">
+      <h2>CHAMPION RUSH</h2>
+      12 Teams
+      <div class="map">8 MAP</div>
+      <div class="result">🏆 Champion Decided</div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
